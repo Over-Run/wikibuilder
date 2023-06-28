@@ -64,9 +64,7 @@ class Page(
             if (stylesheets.isNotEmpty()) {
                 stylesheets.forEach { ss ->
                     appendLine(
-                        "<link rel=\"stylesheet\" type=\"text/css\" href=\"${
-                            "../".repeat(id.path.count { it == '/' })
-                        }css/${ss.name}.css\">"
+                        "<link rel=\"stylesheet\" type=\"text/css\" href=\"${rootDir(id)}css/${ss.name}.css\">"
                     )
                 }
             }
@@ -76,7 +74,7 @@ class Page(
                 <body>
             """.trimIndent()
             )
-            content.forEach { append(it.generate(id.id)) }
+            contentList.forEach { append(it.generate(id)) }
             append(
                 """
                 </body>
@@ -87,5 +85,5 @@ class Page(
     }
 
     override fun toString(): String = throw UnsupportedOperationException()
-    override fun generate(pageId: String): String = throw UnsupportedOperationException()
+    override fun generate(pageID: PageID): String = throw UnsupportedOperationException()
 }

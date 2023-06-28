@@ -20,6 +20,13 @@ const val LANG_EN_US = "en-US"
 const val LANG_ZH_HANS = "zh-Hans"
 const val LANG_ZH_HANT = "zh-Hant"
 
+/** Gets the root directory for the current language of the wiki. */
+fun rootDir(pageID: PageID): String = "../".repeat(pageID.path.count { it == '/' })
+
+/** Gets the root directory of the wiki. */
+fun rootDir(pageID: PageID, lang: String): String =
+    "../".repeat(pageID.path.count { it == '/' } + (if (lang != LANG_EN_US) 1 else 0))
+
 /**
  * The website.
  *

@@ -23,7 +23,7 @@ package org.overrun.ktwiki
 interface Node {
     /** Attempts to generate string without using the page id. */
     override fun toString(): String
-    fun generate(pageId: String): String
+    fun generate(pageID: PageID): String
 }
 
 /**
@@ -31,10 +31,10 @@ interface Node {
  * @since 0.1.0
  */
 abstract class ListBackedNode : Node {
-    protected val content: MutableList<Node> = ArrayList()
+    protected val contentList: MutableList<Node> = ArrayList()
 
     operator fun Node.unaryPlus() {
-        content += this
+        contentList += this
     }
 
     operator fun String.unaryPlus() {
@@ -69,17 +69,15 @@ open class TagListNode(
     protected val id: String? = null,
     protected val `class`: String? = null,
     protected val style: String? = null,
-    content: TagListNode.() -> Unit
+    private val content: TagListNode.(PageID) -> Unit
 ) : ListBackedNode() {
-    init {
-        content()
-    }
-
     override fun toString(): String = throw UnsupportedOperationException()
-    override fun generate(pageId: String): String = buildString {
+    override fun generate(pageID: PageID): String = buildString {
+        content(pageID)
         appendLine("<$tag${id(id)}${`class`(`class`)}${style(style)}>")
-        content.forEach { append(it.generate(pageId)) }
+        contentList.forEach { append(it.generate(pageID)) }
         appendLine("</$tag>")
+        contentList.clear()
     }
 }
 
@@ -92,13 +90,13 @@ class ListNode(
     id: String? = null,
     `class`: String? = null,
     style: String? = null,
-    content: TagListNode.() -> Unit
+    content: TagListNode.(PageID) -> Unit
 ) : TagListNode(tag, id, `class`, style, content) {
-    override fun generate(pageId: String): String = buildString {
+    override fun generate(pageID: PageID): String = buildString {
         appendLine("<$tag${id(id)}${`class`(`class`)}${style(style)}>")
-        content.forEach {
+        contentList.forEach {
             append("<li>")
-            append(it.generate(pageId))
+            append(it.generate(pageID))
             appendLine("</li>")
         }
         appendLine("</$tag>")
@@ -112,7 +110,7 @@ class ListNode(
 @Suppress("ClassName")
 object br : Node {
     override fun toString(): String = "<br>"
-    override fun generate(pageId: String): String = toString()
+    override fun generate(pageID: PageID): String = toString()
 }
 
 /**
@@ -123,13 +121,13 @@ object br : Node {
  * @since 0.1.0
  */
 class RelativeLink(
-    private val href: (String) -> String?,
+    private val href: (PageID) -> String?,
     private val content: String,
     private val classCurr: String? = null
 ) : Node {
     override fun toString(): String = throw UnsupportedOperationException()
-    override fun generate(pageId: String): String {
-        val s = href(pageId)
+    override fun generate(pageID: PageID): String {
+        val s = href(pageID)
         return if (s != null)
             "<a href=\"$s\" target=\"_blank\" rel=\"noopener noreferrer\">$content</a>\n"
         else "<b${classCurr?.let { " class=\"$it\"" } ?: ""}>$content</b>\n"
@@ -151,12 +149,12 @@ private fun singleTag(
 
 fun literal(string: String): Node = object : Node {
     override fun toString(): String = string
-    override fun generate(pageId: String): String = toString()
+    override fun generate(pageID: PageID): String = toString()
 }
 
-fun literal(string: (String) -> String): Node = object : Node {
+fun literal(string: (PageID) -> String): Node = object : Node {
     override fun toString(): String = throw UnsupportedOperationException()
-    override fun generate(pageId: String): String = string(pageId)
+    override fun generate(pageID: PageID): String = string(pageID)
 }
 
 fun p(
@@ -170,7 +168,7 @@ fun p(
     id: String? = null,
     `class`: String? = null,
     style: String? = null,
-    content: TagListNode.() -> Unit
+    content: TagListNode.(PageID) -> Unit
 ): Node = TagListNode("p", id, `class`, style, content)
 
 fun b(
@@ -295,7 +293,7 @@ fun div(
     id: String? = null,
     `class`: String? = null,
     style: String? = null,
-    content: TagListNode.() -> Unit
+    content: TagListNode.(PageID) -> Unit
 ): Node = TagListNode("div", id, `class`, style, content)
 
 fun code(
@@ -317,12 +315,12 @@ fun ul(
     id: String? = null,
     `class`: String? = null,
     style: String? = null,
-    content: TagListNode.() -> Unit
+    content: TagListNode.(PageID) -> Unit
 ): Node = ListNode("ul", id, `class`, style, content)
 
 fun ol(
     id: String? = null,
     `class`: String? = null,
     style: String? = null,
-    content: TagListNode.() -> Unit
+    content: TagListNode.(PageID) -> Unit
 ): Node = ListNode("ol", id, `class`, style, content)

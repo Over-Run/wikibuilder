@@ -66,7 +66,7 @@ fun main() = builtin(
             }
             +links {
                 +about { -"Other languages" }
-                +link { +a(href = "$LANG_ZH_HANS/", content = "简体中文") }
+                +link { pid -> +a(href = "${rootDir(pid)}$LANG_ZH_HANS/", content = "简体中文") }
             }
         }
 
@@ -147,13 +147,13 @@ fun main() = builtin(
             +("Heading 5" to 5)
             +("Heading 6" to 6)
             +"This is a paragraph"
-            -"This is an literal text."
+            -"This is a literal text."
             -" Appending"
             !"""
                 This is a code block.
                 Another line
             """.trimIndent()
-            +"We haven’t support to highlighting yet."
+            +"We haven’t supported to highlighting yet."
             +codeBlock(
                 """
                 ${color("#475F63", "1")}    ${color("#546E7A", "/* This is a code block */")}
@@ -208,7 +208,7 @@ fun main() = builtin(
             }
             +links {
                 +about { -"其他语言" }
-                +link { +a(href = "../", content = "English (United States)") }
+                +link { pid -> +a(href = rootDir(pid, this@site.lang), content = "English (United States)") }
             }
         }
 

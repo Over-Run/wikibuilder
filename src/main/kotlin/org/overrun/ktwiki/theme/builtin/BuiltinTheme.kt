@@ -57,28 +57,28 @@ class BuiltinTheme(
         -"Last generated: ${LocalDateTime.now(Clock.systemUTC()).format(DateTimeFormatter.ISO_DATE_TIME)}"
     }
 
-    fun main(content: TagListNode.() -> Unit): Node = div(id = "main", content = content)
-    fun sidebar(content: TagListNode.() -> Unit): Node = div(id = "sidebar", content = content)
-    fun footer(content: TagListNode.() -> Unit): Node = div(id = "footer", content = content)
-    fun page(pageId: PageID, content: TagListNode.() -> Unit) = Page(pageId, stylesheets = builtinCssList) {
+    fun main(content: TagListNode.(PageID) -> Unit): Node = div(id = "main", content = content)
+    fun sidebar(content: TagListNode.(PageID) -> Unit): Node = div(id = "sidebar", content = content)
+    fun footer(content: TagListNode.(PageID) -> Unit): Node = div(id = "footer", content = content)
+    fun page(pageID: PageID, content: TagListNode.(PageID) -> Unit) = Page(pageID, stylesheets = builtinCssList) {
         +main(content)
         +sidebar
         +footer
     }
 
-    fun links(content: TagListNode.() -> Unit): Node = div(`class` = "links", content = content)
-    fun link(content: TagListNode.() -> Unit): Node = div(`class` = "link", content = content)
-    fun about(content: TagListNode.() -> Unit): Node = div(`class` = "about", content = content)
+    fun links(content: TagListNode.(PageID) -> Unit): Node = div(`class` = "links", content = content)
+    fun link(content: TagListNode.(PageID) -> Unit): Node = div(`class` = "link", content = content)
+    fun about(content: TagListNode.(PageID) -> Unit): Node = div(`class` = "about", content = content)
 
     fun color(color: String, content: String): Node = literal("<span style=\"color: $color;\">$content</span>")
     fun spoiler(content: String): Node = literal("<span class=\"spoiler\">$content</span>")
 
-    fun relativeLink(pageId: PageID, lang: String = LANG_EN_US, content: String = pageId.name(lang)): Node =
+    fun relativeLink(pageID: PageID, lang: String = LANG_EN_US, content: String = pageID.name(lang)): Node =
         RelativeLink(
             href = {
-                if (it == pageId.id) return@RelativeLink null
-                if (it == indexID.id) return@RelativeLink pageId.path
-                return@RelativeLink "../${pageId.path}"
+                if (it.id == pageID.id) return@RelativeLink null
+                if (it.id == indexID.id) return@RelativeLink pageID.path
+                return@RelativeLink "../${pageID.path}"
             },
             content = content, classCurr = "pageCurr"
         )
