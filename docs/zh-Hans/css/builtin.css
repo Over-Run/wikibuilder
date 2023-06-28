@@ -1,0 +1,35 @@
+/* auto generated file. DO NOT EDIT */
+body { margin: 2em 2em;
+    font-family: DejaVu Sans, Bitstream Vera Sans, Luxi Sans, Verdana, Arial, Helvetica, sans-serif; font-size: 1.0em;
+    line-height: 1; width: 54em; }
+a { text-decoration: none; }
+a:link { color: #437291; }
+a:visited { color: #666666; }
+a:hover { color: #E76F00; }
+a:active { color: #E76F00; }
+#main { float: right; width: 42em; padding-right: 2em; }
+#sidebar { font-size: 0.8em; width: 11em;
+    padding-right: 2em; margin-left: 0; }
+#footer { padding-top: 4em; text-align: center;
+    font-size: 0.7em; clear: both; }
+#footer, #footer a, #footer a:link, #footer a:visited, div.links { color: #888; }
+div.links, div.buttons, div.about { padding-top: .5ex; padding-right: 0; line-height: 1.3; }
+div.links div.link { margin-left: 1em; text-indent: -1em; }
+div.about { font-weight: bold; color: #555; }
+div.link .pageCurr { color: black; }
+pre { padding-left: 2em; margin: 1ex 0; font-size: inherit; }
+pre, code, tt { font-family: DejaVu Sans Mono, JetBrains Mono, Bitstream Vera Sans Mono, Luxi Mono, Courier New, monospace; }
+h1 { font-size: 1.3em; font-weight: bold;
+    padding: 0; margin: 2ex .5ex 1ex 0; }
+h2 { font-size: 1.1em; font-weight: bold;
+    padding: 0; margin: 2ex 0 1ex 0; }
+h3 { font-size: 1.0em; font-weight: bold; font-style: italic;
+    padding: 0; margin: 1ex 0 1ex 0; }
+h4 { font-size: 0.9em; font-weight: bold;
+    padding: 0; margin: 1ex 0 1ex 0; }
+h1:first-child, h2:first-child { margin-top: 0; }
+.spoiler { background-color: black; color: black; transition: color 0.2s; }
+.spoiler:hover { color: white; }
+ul { padding-left: 2em; list-style-type: square; }
+ul, ol { margin-top: 1ex; margin-bottom: 1ex; margin-right: 2em; }
+li { margin-top: 0; margin-bottom: 0; }

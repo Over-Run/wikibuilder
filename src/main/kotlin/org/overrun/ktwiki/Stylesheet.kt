@@ -16,7 +16,6 @@
 
 package org.overrun.ktwiki
 
-import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import kotlin.io.path.Path
 
@@ -27,23 +26,14 @@ import kotlin.io.path.Path
  * @author squid233
  * @since 0.1.0
  */
-class Stylesheet(val name: String, action: Stylesheet.() -> Unit) {
-    private val styles: MutableList<String> = ArrayList()
-
-    init {
-        action()
-    }
-
-    operator fun String.unaryPlus() {
-        styles += this
-    }
-
+class Stylesheet(val name: String, private val content: String) {
     fun generate(site: Site, basePath: String) {
         val finalPath = Path(basePath).let { if (site.lang != LANG_EN_US) it.resolve(site.lang) else it }.resolve("css")
         Files.createDirectories(finalPath)
-        Files.writeString(finalPath.resolve("$name.css"), buildString {
-            appendLine("/* auto generated file. DO NOT EDIT */")
-            styles.forEach { appendLine(it) }
-        }, StandardCharsets.UTF_8)
+        Files.writeString(
+            finalPath.resolve("$name.css"),
+            "/* auto generated file. DO NOT EDIT */\n$content",
+            Charsets.UTF_8
+        )
     }
 }

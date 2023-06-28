@@ -17,125 +17,77 @@
 package org.overrun.ktwiki.test
 
 import org.overrun.ktwiki.*
+import org.overrun.ktwiki.theme.builtin.builtin
+import java.time.Clock
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-val publicCss = Stylesheet("public") {
-    +"""
-        body {
-            margin: 2em 2em;
-            font-family: DejaVu Sans, Bitstream Vera Sans, Luxi Sans, Verdana, Arial, Helvetica, sans-serif;
-            font-size: 1.0em;
-            line-height: 1.4;
-            width: 54em;
-        }
-        a { text-decoration: none; }
-        a:link { color: #437291; }
-        a:visited { color: #666666; }
-        a:hover { color: #E76F00; }
-        a:active { color: #E76F00; }
-        #main {
-            float: right;
-            width: 42em;
-            padding-right: 2em;
-        }
-        #sidebar {
-            font-size: 0.8em;
-            width: 11em;
-            padding-right: 2em;
-            margin-left: 0em;
-        }
-        #footer {
-            padding-top: 4em;
-            text-align: center;
-            font-size: 0.7em;
-            clear: both;
-        }
-        #footer, #footer a, #footer a:link, #footer a:visited, div.links { color: #888; }
-        div.links, div.buttons, div.about {
-            padding-top: .5ex; padding-right: 0em; line-height: 1.3;
-        }
-        div.links div.link { margin-left: 1em; text-indent: -1em; }
-        div.about { font-weight: bold; color: #555; }
-        div.link .pageCurr { color: black; }
-        pre { padding-left: 2em; margin: 1ex 0; font-size: inherit; }
-        pre, code, tt {
-            font-family: DejaVu Sans Mono, JetBrains Mono, Bitstream Vera Sans Mono, Luxi Mono, Courier New, monospace;
-        }
-        h1 { font-size: 1.3em; font-weight: bold;
-            padding: 0pt; margin: 2ex .5ex 1ex 0pt; }
-        h2 { font-size: 1.1em; font-weight: bold;
-            padding: 0pt; margin: 2ex 0pt 1ex 0pt; }
-        h3 { font-size: 1.0em; font-weight: bold; font-style: italic;
-            padding: 0pt; margin: 1ex 0pt 1ex 0pt; }
-        h4 { font-size: 0.9em; font-weight: bold;
-            padding: 0pt; margin: 1ex 0pt 1ex 0pt; }
-        h1:first-child, h2:first-child {
-            margin-top: 0ex;
-        }
-    """.trimIndent()
-}
-private val stylesheets: List<Stylesheet> = listOf(publicCss)
-
-val indexID = "_ktwiki_index" to "Index"
-val downloadID = "download" to "Download"
-val basicFunctionsID = "basic_functions" to "Basic functions"
-val allFeaturesID = "all_features" to "All features"
+val indexID = PageID("_ktwiki_index", {
+    when (it) {
+        LANG_ZH_HANS -> "索引"
+        else -> "Index"
+    }
+}, "")
+val downloadID = PageID("download", {
+    when (it) {
+        LANG_ZH_HANS -> "下载"
+        else -> "Download"
+    }
+})
+val basicFunctionsID = PageID("basic_functions", {
+    when (it) {
+        LANG_ZH_HANS -> "基本函数"
+        else -> "Basic functions"
+    }
+})
+val allFeaturesID = PageID("all_features", {
+    when (it) {
+        LANG_ZH_HANS -> "特性一览"
+        else -> "All features"
+    }
+})
 
 /**
  * @author squid233
  * @since 0.1.0
  */
-fun main() = site("ktwiki Wiki") {
-    // We can actually define templates.
-    val color = fun(color: String, content: String): Node = literal("<span style=\"color:$color\">$content</span>")
-    val relativeLink = fun(pageId: String, link: String, content: String): Node = RelativeLink(
-        href = {
-            if (it == pageId) return@RelativeLink null
-            if (it == "_ktwiki_index") return@RelativeLink link
-            return@RelativeLink "../$link"
-        },
-        content = content, classCurr = "pageCurr"
-    )
-    val main = fun(content: DivNode.() -> Unit): Node = div(id = "main", content = content)
-    val sidebar = div(id = "sidebar") {
-        +div(`class` = "links") {
-            +div(`class` = "link") {
-                +relativeLink(indexID.first, "", indexID.second)
-            }
-            +div(`class` = "link") {
-                +relativeLink(downloadID.first, "${downloadID.second}/", downloadID.second)
-            }
-        }
-        +div(`class` = "links") {
-            +div(`class` = "link") {
-                +relativeLink(basicFunctionsID.first, "${basicFunctionsID.second}/", basicFunctionsID.second)
-            }
-            +div(`class` = "link") {
-                +relativeLink(allFeaturesID.first, "${allFeaturesID.second}/", allFeaturesID.second)
-            }
-        }
-    }
-    val footer = div(id = "footer") {
-        -"Copyright (c) 2023 Overrun Organization"
+fun main() = builtin(indexID) {
+    footer = footer {
+        -"Copyright (c) ${LocalDate.now().year} Overrun Organization"
         +br
         -"License: ${
             a(href = "https://github.com/Over-Run/ktwiki/blob/main/LICENSE", content = "MIT")
         } · ${a(href = "https://github.com/Over-Run/ktwiki", content = "Source")}"
+        +br
+        -"Last generated: ${LocalDateTime.now(Clock.systemUTC()).format(DateTimeFormatter.ISO_DATE_TIME)}"
     }
 
-    +publicCss
-    +Page(indexID, path = null, stylesheets = stylesheets) {
-        +main {
+    site("ktwiki Wiki") {
+        sidebar = sidebar {
+            +links {
+                +link { +relativeLink(indexID) }
+                +link { +relativeLink(downloadID) }
+            }
+            +links {
+                +link { +relativeLink(basicFunctionsID) }
+                +link { +relativeLink(allFeaturesID) }
+            }
+            +links {
+                +about { -"Other languages" }
+                +link { +a(href = "$LANG_ZH_HANS/", content = "简体中文") }
+            }
+        }
+
+        +builtinCss
+        +page(indexID) {
             +"Welcome to ktwiki Wiki!"
             +("Introduction" to 2)
             +"ktwiki is a Kotlin DSL that allows you to generate your own wiki or pages."
-            +"An official theme will be available soon."
+            +"An official theme is available."
             +"Check the sidebar for more information."
         }
-        +sidebar
-        +footer
-    }
-    +Page(downloadID, stylesheets = stylesheets) {
-        +main {
+        +page(downloadID) {
             +("Download" to 1)
             +"You can download the source on ${a(href = "https://github.com/Over-Run/ktwiki", content = "GitHub")}."
             +"You need to use Java 17 and Kotlin 1.8.22 to run your generator."
@@ -159,19 +111,43 @@ fun main() = site("ktwiki Wiki") {
                 &lt;/dependencies>
             """.trimIndent()
         }
-        +sidebar
-        +footer
-    }
-    +Page(basicFunctionsID, stylesheets = stylesheets) {
-        +main {
+        +page(basicFunctionsID) {
+            fun defFun(name: String) = +a(href = "#$name", content = h(2, "${code(name)}", id = name))
+            fun refFun(name: String) = a(href = "#$name", content = code(name), openInBlank = false)
+            fun sign(content: String) {
+                +("Signatures" to 3)
+                !content
+            }
+
+            fun param(vararg params: Pair<String, String>) {
+                +("Parameters" to 3)
+                +ul {
+                    params.forEach { (name, desc) ->
+                        -"${code(name)}: $desc"
+                    }
+                }
+            }
+
             +("Basic functions" to 1)
-            +"TODO"
+
+            defFun("PageID")
+            sign("PageID(id: String, name: (String) -> String, path: String = \"\$name/\")")
+            param(
+                "id" to "An unique identifier of the page. For special pages, start with \"${code("_")}\".",
+                "name" to "The name of the page for each language.",
+                "path" to "The path of the page. Defaults to the name of the page."
+            )
+            +"Creates a page ID."
+
+            defFun("builtin")
+            sign("${b("fun")} builtin(indexId: PageID, action: BuiltinTheme.() -> Unit)")
+            param(
+                "indexId" to "The ${refFun("PageID")} of the index.",
+                "action" to "The code of the generator."
+            )
+            +"Uses the builtin theme. Enables to use builtin stylesheet and templates."
         }
-        +sidebar
-        +footer
-    }
-    +Page(allFeaturesID, stylesheets = stylesheets) {
-        +main {
+        +page(allFeaturesID) {
             +("All features" to 1)
             +("Heading 1" to 1)
             +("Heading 2" to 2)
@@ -200,9 +176,118 @@ fun main() = site("ktwiki Wiki") {
             +"sidebar and footer are added as ${code("div")}."
             +a(href = "https://github.com/Over-Run/overrungl", content = "A link that opens in a new tab")
             +a(href = "https://github.com/Over-Run/ktwiki", content = h(6, p("Another link with ${code("h6")}")))
-            +relativeLink(indexID.first, "", p("Jump to index").toString())
+            +relativeLink(indexID, p("Jump to index").toString())
+            +relativeLink(allFeaturesID, "Cannot click (reference to this page)")
+            +p { +spoiler("Just kidding") }
+            +p {
+                +b("BOLD")
+                +i("ITALIC")
+                +s("strikethrough")
+                +u("underline")
+                +strong("IMPORTANT TEXT")
+                +em("emphasized text")
+            }
+            +p {
+                +small("small text")
+                +sup("2")
+                +sub("n")
+            }
+            !"void ${del("mian")}${ins("main")}() {"
+            +ul {
+                -"Test"
+                +b("Bold")
+                +"Paragraph"
+            }
+            +ol {
+                -"Test"
+                +b("Bold")
+                +"Paragraph"
+            }
         }
-        +sidebar
-        +footer
+    }
+
+    site("ktwiki Wiki", lang = LANG_ZH_HANS) {
+        sidebar = sidebar {
+            +links {
+                +link { +relativeLink(indexID, lang = this@site.lang) }
+                +link { +relativeLink(downloadID, lang = this@site.lang) }
+            }
+            +links {
+                +link { +relativeLink(basicFunctionsID, lang = this@site.lang) }
+            }
+            +links {
+                +about { -"其他语言" }
+                +link { +a(href = "../", content = "English (United States)") }
+            }
+        }
+
+        +builtinCss
+        +page(indexID) {
+            +"欢迎来到 ktwiki Wiki！"
+            +("介绍" to 2)
+            +"ktwiki 是一个 Kotlin DSL，允许您生成自己的 wiki 或页面。"
+            +"自带一个官方主题。"
+            +"查看边栏了解更多信息。"
+        }
+        +page(downloadID) {
+            +("下载" to 1)
+            +"可在 ${a(href = "https://github.com/Over-Run/ktwiki", content = "GitHub")} 上下载源码。"
+            +"您需要 Java 17 和 Kotlin 1.8.22 来运行生成器。"
+            +("添加到依赖" to 2)
+            +("Gradle" to 3)
+            +"添加以下代码到 ${code("build.gradle")}:"
+            !"""
+                dependencies {
+                    implementation "io.github.over-run:ktwiki:+"
+                }
+            """.trimIndent()
+            +("Maven" to 3)
+            +"添加以下代码到 ${code("pom.xml")}:"
+            !"""
+                &lt;dependencies>
+                    &lt;dependency>
+                        &lt;groupId>io.github.over-run&lt;/groupId>
+                        &lt;artifactId>ktwiki&lt;/artifactId>
+                        &lt;version><i>版本</i>&lt;/version>
+                    &lt;/dependency>
+                &lt;/dependencies>
+            """.trimIndent()
+        }
+        +page(basicFunctionsID) {
+            fun defFun(name: String) = +a(href = "#$name", content = h(2, "${code(name)}", id = name))
+            fun refFun(name: String) = a(href = "#$name", content = code(name), openInBlank = false)
+            fun sign(content: String) {
+                +("函数签名" to 3)
+                !content
+            }
+
+            fun param(vararg params: Pair<String, String>) {
+                +("参数" to 3)
+                +ul {
+                    params.forEach { (name, desc) ->
+                        -"${code(name)}: $desc"
+                    }
+                }
+            }
+
+            +("基本函数" to 1)
+
+            defFun("PageID")
+            sign("PageID(id: String, name: (String) -> String, path: String = \"\$name/\")")
+            param(
+                "id" to "页面的唯一标识符。特殊页面以 \"${code("_")}\" 开头。",
+                "name" to "页面每种语言的名称。",
+                "path" to "页面的路径。默认为页面名称。"
+            )
+            +"创建一个页面 ID。"
+
+            defFun("builtin")
+            sign("${b("fun")} builtin(indexId: PageID, action: BuiltinTheme.() -> Unit)")
+            param(
+                "indexId" to "索引页面的 ${refFun("PageID")}。",
+                "action" to "生成器代码。"
+            )
+            +"使用内置主题，启用内置样式表和模板。"
+        }
     }
 }

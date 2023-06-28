@@ -16,26 +16,30 @@
 
 package org.overrun.ktwiki
 
-import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import kotlin.io.path.Path
 
 /**
+ * An identifier of a page.
+ *
+ * @param[id] the unique identifier for the page. For special pages, start with "_"
+ * @author squid233
+ * @since 0.1.0
+ */
+data class PageID(val id: String, val name: (String) -> String, val path: String = "${name(LANG_EN_US)}/")
+
+/**
  * A wiki page.
  *
- * @param[identifier] the identifier of the page. first: the id, for special pages, start with "_"; second: the name
+ * @param[id] the identifier of the page.
  * @author squid233
  * @since 0.1.0
  */
 class Page(
-    identifier: Pair<String, String>,
-    private val path: String? = identifier.second,
+    private val id: PageID,
     private val stylesheets: List<Stylesheet> = emptyList(),
     action: Page.() -> Unit
 ) : ListBackedNode() {
-    private val id: String = identifier.first
-    private val name: String = identifier.second
-
     init {
         action()
     }
@@ -43,7 +47,7 @@ class Page(
     fun generate(site: Site, basePath: String) {
         val finalPath = Path(basePath)
             .let { if (site.lang != LANG_EN_US) it.resolve(site.lang) else it }
-            .let { if (path != null) it.resolve(path) else it }
+            .resolve(id.path)
         Files.createDirectories(finalPath)
         Files.writeString(finalPath.resolve("index.html"), buildString {
             appendLine(
@@ -54,12 +58,16 @@ class Page(
                 <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1">
-                <title>${name} - ${site.name}</title>
+                <title>${id.name(site.lang)} - ${site.name}</title>
             """.trimIndent()
             )
             if (stylesheets.isNotEmpty()) {
-                stylesheets.forEach {
-                    appendLine("<link rel=\"stylesheet\" type=\"text/css\" href=\"${if (path != null) "../css/${it.name}.css" else "css/${it.name}.css"}\">")
+                stylesheets.forEach { ss ->
+                    appendLine(
+                        "<link rel=\"stylesheet\" type=\"text/css\" href=\"${
+                            "../".repeat(id.path.count { it == '/' })
+                        }css/${ss.name}.css\">"
+                    )
                 }
             }
             appendLine(
@@ -68,14 +76,14 @@ class Page(
                 <body>
             """.trimIndent()
             )
-            content.forEach { append(it.generate(id)) }
+            content.forEach { append(it.generate(id.id)) }
             append(
                 """
                 </body>
                 </html>
             """.trimIndent()
             )
-        }, StandardCharsets.UTF_8)
+        }, Charsets.UTF_8)
     }
 
     override fun toString(): String = throw UnsupportedOperationException()

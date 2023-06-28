@@ -64,18 +64,44 @@ abstract class ListBackedNode : Node {
  * @author squid233
  * @since 0.1.0
  */
-class DivNode(
-    private val id: String? = null,
-    private val `class`: String? = null
+open class TagListNode(
+    protected val tag: String,
+    protected val id: String? = null,
+    protected val `class`: String? = null,
+    protected val style: String? = null,
+    content: TagListNode.() -> Unit
 ) : ListBackedNode() {
+    init {
+        content()
+    }
+
     override fun toString(): String = throw UnsupportedOperationException()
     override fun generate(pageId: String): String = buildString {
-        append("<div")
-        if (id != null) append(" id=\"$id\"")
-        if (`class` != null) append(" class=\"$`class`\"")
-        appendLine('>')
+        appendLine("<$tag${id(id)}${`class`(`class`)}${style(style)}>")
         content.forEach { append(it.generate(pageId)) }
-        appendLine("</div>")
+        appendLine("</$tag>")
+    }
+}
+
+/**
+ * @author squid233
+ * @since 0.1.0
+ */
+class ListNode(
+    tag: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null,
+    content: TagListNode.() -> Unit
+) : TagListNode(tag, id, `class`, style, content) {
+    override fun generate(pageId: String): String = buildString {
+        appendLine("<$tag${id(id)}${`class`(`class`)}${style(style)}>")
+        content.forEach {
+            append("<li>")
+            append(it.generate(pageId))
+            appendLine("</li>")
+        }
+        appendLine("</$tag>")
     }
 }
 
@@ -110,7 +136,18 @@ class RelativeLink(
     }
 }
 
+private fun id(id: String?): String = if (id != null) " id=\"$id\"" else ""
+private fun `class`(`class`: String?): String = if (`class` != null) " class=\"$`class`\"" else ""
 private fun style(style: String?): String = if (style != null) " style=\"$style\"" else ""
+
+private fun singleTag(
+    tag: String,
+    string: String,
+    id: String?,
+    `class`: String?,
+    style: String?,
+    newLine: Boolean = true
+): Node = literal("<$tag${id(id)}${`class`(`class`)}${style(style)}>$string</$tag>${if (newLine) "\n" else ""}")
 
 fun literal(string: String): Node = object : Node {
     override fun toString(): String = string
@@ -122,25 +159,170 @@ fun literal(string: (String) -> String): Node = object : Node {
     override fun generate(pageId: String): String = string(pageId)
 }
 
-fun p(string: String, style: String? = null): Node = literal("<p${style(style)}>$string</p>\n")
+fun p(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("p", string, id, `class`, style)
 
-fun a(href: String, content: Node, style: String? = null): Node = a(href, content.toString())
-fun a(href: String, content: String, style: String? = null): Node = literal(
-    "<a href=\"$href\" target=\"_blank\" rel=\"noopener noreferrer\"${style(style)}>$content</a>\n"
+fun p(
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null,
+    content: TagListNode.() -> Unit
+): Node = TagListNode("p", id, `class`, style, content)
+
+fun b(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("b", string, id, `class`, style, false)
+
+fun i(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("i", string, id, `class`, style, false)
+
+fun s(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("s", string, id, `class`, style, false)
+
+fun u(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("u", string, id, `class`, style, false)
+
+fun strong(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("strong", string, id, `class`, style, false)
+
+fun em(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("em", string, id, `class`, style, false)
+
+fun small(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("small", string, id, `class`, style, false)
+
+fun sub(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("sub", string, id, `class`, style, false)
+
+fun sup(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("sup", string, id, `class`, style, false)
+
+fun ins(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("ins", string, id, `class`, style, false)
+
+fun del(
+    string: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = singleTag("del", string, id, `class`, style, false)
+
+fun a(
+    href: String,
+    content: Node,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null,
+    openInBlank: Boolean = true,
+): Node = a(href, content.toString(), id, `class`, style, openInBlank)
+
+fun a(
+    href: String,
+    content: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null,
+    openInBlank: Boolean = true,
+): Node = literal(
+    "<a href=\"$href\"${
+        if (openInBlank) " target=\"_blank\" rel=\"noopener noreferrer\"" else ""
+    }${id(id)}${`class`(`class`)}${style(style)}>$content</a>\n"
 )
 
-fun h(level: Int, content: Node, style: String? = null): Node = h(level, content.toString(), style)
-fun h(level: Int, content: String, style: String? = null): Node {
+fun h(
+    level: Int,
+    content: Node,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = h(level, content.toString(), id, `class`, style)
+
+fun h(
+    level: Int,
+    content: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node {
     check(level in 1..6) { "Must be 1 to 6" }
-    return literal("<h$level${style(style)}>$content</h$level>\n")
+    return literal("<h$level${id(id)}${`class`(`class`)}${style(style)}>$content</h$level>\n")
 }
 
 fun div(
     id: String? = null,
     `class`: String? = null,
-    content: DivNode.() -> Unit
-): Node = DivNode(id, `class`).also(content)
+    style: String? = null,
+    content: TagListNode.() -> Unit
+): Node = TagListNode("div", id, `class`, style, content)
 
-fun code(content: String, style: String? = null): Node = literal("<code${style(style)}>$content</code>\n")
-fun codeBlock(content: String, style: String? = null): Node =
-    literal("<pre${style(style)}><code>$content</code></pre>\n")
+fun code(
+    content: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node = literal("<code${id(id)}${`class`(`class`)}${style(style)}>$content</code>\n")
+
+fun codeBlock(
+    content: String,
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null
+): Node =
+    literal("<pre${id(id)}${`class`(`class`)}${style(style)}><code>$content</code></pre>\n")
+
+fun ul(
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null,
+    content: TagListNode.() -> Unit
+): Node = ListNode("ul", id, `class`, style, content)
+
+fun ol(
+    id: String? = null,
+    `class`: String? = null,
+    style: String? = null,
+    content: TagListNode.() -> Unit
+): Node = ListNode("ol", id, `class`, style, content)
