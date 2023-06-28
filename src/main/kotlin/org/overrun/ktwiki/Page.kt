@@ -32,23 +32,9 @@ class Page(
     private val path: String? = name,
     private val stylesheets: List<Stylesheet> = emptyList(),
     action: Page.() -> Unit
-) {
-    private val content: MutableList<Node> = ArrayList()
-
+) : ListBackedNode() {
     init {
         action()
-    }
-
-    operator fun Node.unaryPlus() {
-        content += this
-    }
-
-    operator fun String.unaryPlus() {
-        +paragraphNode(this)
-    }
-
-    operator fun Pair<String, String>.unaryPlus() {
-        +linkNode(link = this.second, content = this.first)
     }
 
     fun generate(site: Site, basePath: String) {
@@ -62,12 +48,13 @@ class Page(
                 <html lang="${site.lang}">
                 <head>
                 <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
                 <title>${name} - ${site.name}</title>
             """.trimIndent()
             )
             if (stylesheets.isNotEmpty()) {
                 stylesheets.forEach {
-                    appendLine("<link rel=\"stylesheet\" type=\"text/css\" href=\"${if (path != null) "../css/${it.name}.css" else "css/${it.name}.css"}\"/>")
+                    appendLine("<link rel=\"stylesheet\" type=\"text/css\" href=\"${if (path != null) "../css/${it.name}.css" else "css/${it.name}.css"}\">")
                 }
             }
             appendLine(
@@ -76,7 +63,7 @@ class Page(
                 <body>
             """.trimIndent()
             )
-            content.forEach { it.append(this) }
+            content.forEach(::append)
             append(
                 """
                 </body>
@@ -84,5 +71,9 @@ class Page(
             """.trimIndent()
             )
         }, StandardCharsets.UTF_8)
+    }
+
+    override fun toString(): String {
+        throw UnsupportedOperationException()
     }
 }
