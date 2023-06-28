@@ -18,10 +18,6 @@ package org.overrun.ktwiki.test
 
 import org.overrun.ktwiki.*
 import org.overrun.ktwiki.theme.builtin.builtin
-import java.time.Clock
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 val indexID = PageID("_ktwiki_index", {
     when (it) {
@@ -52,17 +48,12 @@ val allFeaturesID = PageID("all_features", {
  * @author squid233
  * @since 0.1.0
  */
-fun main() = builtin(indexID) {
-    footer = footer {
-        -"Copyright (c) ${LocalDate.now().year} Overrun Organization"
-        +br
-        -"License: ${
-            a(href = "https://github.com/Over-Run/ktwiki/blob/main/LICENSE", content = "MIT")
-        } · ${a(href = "https://github.com/Over-Run/ktwiki", content = "Source")}"
-        +br
-        -"Last generated: ${LocalDateTime.now(Clock.systemUTC()).format(DateTimeFormatter.ISO_DATE_TIME)}"
-    }
-
+fun main() = builtin(
+    indexID,
+    orgName = "Overrun Organization",
+    license = a(href = "https://github.com/Over-Run/ktwiki/blob/main/LICENSE", content = "MIT").toString(),
+    source = "https://github.com/Over-Run/ktwiki"
+) {
     site("ktwiki Wiki") {
         sidebar = sidebar {
             +links {
@@ -176,8 +167,8 @@ fun main() = builtin(indexID) {
             +"sidebar and footer are added as ${code("div")}."
             +a(href = "https://github.com/Over-Run/overrungl", content = "A link that opens in a new tab")
             +a(href = "https://github.com/Over-Run/ktwiki", content = h(6, p("Another link with ${code("h6")}")))
-            +relativeLink(indexID, p("Jump to index").toString())
-            +relativeLink(allFeaturesID, "Cannot click (reference to this page)")
+            +relativeLink(indexID, content = p("Jump to index").toString())
+            +relativeLink(allFeaturesID, content = "Cannot click (reference to this page)")
             +p { +spoiler("Just kidding") }
             +p {
                 +b("BOLD")

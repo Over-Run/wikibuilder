@@ -18,12 +18,21 @@ package org.overrun.ktwiki.theme.builtin
 
 import org.overrun.ktwiki.*
 import java.io.BufferedReader
+import java.time.Clock
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * @author squid233
  * @since 0.1.0
  */
-class BuiltinTheme(private val indexID: PageID) {
+class BuiltinTheme(
+    private val indexID: PageID,
+    private val orgName: String?,
+    private val license: String?,
+    private val source: String?
+) {
     val builtinCss = Stylesheet(
         "builtin",
         BuiltinTheme::class.java.getResourceAsStream("/builtin.css")!!.bufferedReader().use(BufferedReader::readText)
@@ -31,7 +40,22 @@ class BuiltinTheme(private val indexID: PageID) {
     val builtinCssList: List<Stylesheet> = listOf(builtinCss)
 
     var sidebar = sidebar { }
-    var footer = footer { }
+    var footer = footer {
+        orgName?.also {
+            -"© ${LocalDate.now().year} $it"
+            +br
+        }
+        license?.also {
+            -"License: $it"
+            if (source == null) +br
+        }
+        source?.also {
+            if (license != null) -" · "
+            +a(href = it, content = "View source")
+            +br
+        }
+        -"Last generated: ${LocalDateTime.now(Clock.systemUTC()).format(DateTimeFormatter.ISO_DATE_TIME)}"
+    }
 
     fun main(content: TagListNode.() -> Unit): Node = div(id = "main", content = content)
     fun sidebar(content: TagListNode.() -> Unit): Node = div(id = "sidebar", content = content)
@@ -60,6 +84,12 @@ class BuiltinTheme(private val indexID: PageID) {
         )
 }
 
-fun builtin(indexId: PageID, action: BuiltinTheme.() -> Unit) {
-    BuiltinTheme(indexId).action()
+fun builtin(
+    indexId: PageID,
+    orgName: String? = null,
+    license: String? = null,
+    source: String? = null,
+    action: BuiltinTheme.() -> Unit
+) {
+    BuiltinTheme(indexId, orgName, license, source).action()
 }
