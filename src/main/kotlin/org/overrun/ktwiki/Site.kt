@@ -16,6 +16,10 @@
 
 package org.overrun.ktwiki
 
+const val LANG_EN_US = "en-US"
+const val LANG_ZH_HANS = "zh-Hans"
+const val LANG_ZH_HANT = "zh-Hant"
+
 /**
  * The website.
  *
@@ -36,14 +40,14 @@ class Site(val name: String, val lang: String) {
     }
 
     fun generate() {
-        stylesheets.forEach { it.generate("docs") }
+        stylesheets.forEach { it.generate(this, "docs") }
         pages.forEach { it.generate(this, "docs") }
     }
 }
 
 fun site(
     name: String,
-    lang: String = "en",
+    lang: String = LANG_EN_US,
     action: Site.() -> Unit
 ) {
     Site(name, lang).also(action).generate()

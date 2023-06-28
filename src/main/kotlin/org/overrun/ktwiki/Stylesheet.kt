@@ -18,7 +18,7 @@ package org.overrun.ktwiki
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import java.nio.file.Path
+import kotlin.io.path.Path
 
 /**
  * A CSS stylesheet.
@@ -38,8 +38,8 @@ class Stylesheet(val name: String, action: Stylesheet.() -> Unit) {
         styles += this
     }
 
-    fun generate(basePath: String) {
-        val finalPath = Path.of(basePath, "css")
+    fun generate(site: Site, basePath: String) {
+        val finalPath = Path(basePath).let { if (site.lang != LANG_EN_US) it.resolve(site.lang) else it }.resolve("css")
         Files.createDirectories(finalPath)
         Files.writeString(finalPath.resolve("$name.css"), buildString {
             appendLine("/* auto generated file. DO NOT EDIT */")

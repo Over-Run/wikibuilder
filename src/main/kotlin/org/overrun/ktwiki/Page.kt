@@ -18,27 +18,32 @@ package org.overrun.ktwiki
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import java.nio.file.Path
+import kotlin.io.path.Path
 
 /**
  * A wiki page.
  *
- * @param[name] the name of the page. For special pages, start with "_".
+ * @param[identifier] the identifier of the page. first: the id, for special pages, start with "_"; second: the name
  * @author squid233
  * @since 0.1.0
  */
 class Page(
-    private val name: String,
-    private val path: String? = name,
+    identifier: Pair<String, String>,
+    private val path: String? = identifier.second,
     private val stylesheets: List<Stylesheet> = emptyList(),
     action: Page.() -> Unit
 ) : ListBackedNode() {
+    private val id: String = identifier.first
+    private val name: String = identifier.second
+
     init {
         action()
     }
 
     fun generate(site: Site, basePath: String) {
-        val finalPath = Path.of(basePath).let { if (path != null) it.resolve(path) else it }
+        val finalPath = Path(basePath)
+            .let { if (site.lang != LANG_EN_US) it.resolve(site.lang) else it }
+            .let { if (path != null) it.resolve(path) else it }
         Files.createDirectories(finalPath)
         Files.writeString(finalPath.resolve("index.html"), buildString {
             appendLine(
@@ -63,7 +68,7 @@ class Page(
                 <body>
             """.trimIndent()
             )
-            content.forEach(::append)
+            content.forEach { append(it.generate(id)) }
             append(
                 """
                 </body>
@@ -73,7 +78,6 @@ class Page(
         }, StandardCharsets.UTF_8)
     }
 
-    override fun toString(): String {
-        throw UnsupportedOperationException()
-    }
+    override fun toString(): String = throw UnsupportedOperationException()
+    override fun generate(pageId: String): String = throw UnsupportedOperationException()
 }
