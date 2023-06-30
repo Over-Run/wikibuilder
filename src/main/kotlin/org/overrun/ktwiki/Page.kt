@@ -26,7 +26,7 @@ import kotlin.io.path.Path
  * @author squid233
  * @since 0.1.0
  */
-data class PageID(val id: String, val name: (String) -> String, val path: String = "${name(LANG_EN_US)}/")
+data class PageID(val id: String, val name: (String) -> String, val path: (String) -> String = { "${name(it)}/" })
 
 /**
  * A wiki page.
@@ -47,7 +47,7 @@ class Page(
     fun generate(site: Site, basePath: String) {
         val finalPath = Path(basePath)
             .let { if (site.lang != LANG_EN_US) it.resolve(site.lang) else it }
-            .resolve(id.path)
+            .resolve(id.path(site.lang))
         Files.createDirectories(finalPath)
         Files.writeString(finalPath.resolve("index.html"), buildString {
             appendLine(

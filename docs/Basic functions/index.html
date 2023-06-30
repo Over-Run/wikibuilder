@@ -10,53 +10,47 @@
 <body>
 <div id="main">
 <h1>Basic functions</h1>
-<a href="#PageID" target="_blank" rel="noopener noreferrer"><h2 id="PageID"><code>PageID</code>
-</h2>
-</a>
-<h3>Signatures</h3>
-<pre><code>PageID(id: String, name: (String) -> String, path: String = "$name/")</code></pre>
+<a href="#PageID" target="_blank" rel="noopener noreferrer"><h2 id="PageID"><code>PageID</code></h2>
+</a><h3>Signatures</h3>
+<pre><code>PageID(id: String, name: (String) -> String, path: (String) -> String = { "${name(it)}/" })</code></pre>
 <h3>Parameters</h3>
 <ul>
+<li><code>id</code>: An unique identifier of the page. For special pages, start with "<code>_</code>".</li>
+<li><code>name</code>: The name of the page for each language.</li>
+<li><code>path</code>: The path of the page. Defaults to the name of the page.</li>
 </ul>
 <p>Creates a page ID.</p>
-<a href="#builtin" target="_blank" rel="noopener noreferrer"><h2 id="builtin"><code>builtin</code>
-</h2>
-</a>
-<h3>Signatures</h3>
+<a href="#builtin" target="_blank" rel="noopener noreferrer"><h2 id="builtin"><code>builtin</code></h2>
+</a><h3>Signatures</h3>
 <pre><code><b>fun</b> builtin(indexId: PageID, action: BuiltinTheme.() -> Unit)</code></pre>
 <h3>Parameters</h3>
 <ul>
+<li><code>indexId</code>: The <a href="#PageID"><code>PageID</code></a> of the index.</li>
+<li><code>action</code>: The code of the generator.</li>
 </ul>
 <p>Uses the builtin theme. Enables to use builtin stylesheet and templates.</p>
 </div>
 <div id="sidebar">
 <div class="links">
 <div class="link">
-<a href="../" target="_blank" rel="noopener noreferrer">Index</a>
-</div>
+<a href="../" target="_blank" rel="noopener noreferrer">Index</a></div>
 <div class="link">
-<a href="../Download/" target="_blank" rel="noopener noreferrer">Download</a>
-</div>
+<a href="../Download/" target="_blank" rel="noopener noreferrer">Download</a></div>
 </div>
 <div class="links">
 <div class="link">
-<b class="pageCurr">Basic functions</b>
-</div>
+<b class="pageCurr">Basic functions</b></div>
 <div class="link">
-<a href="../All features/" target="_blank" rel="noopener noreferrer">All features</a>
-</div>
+<a href="../All features/" target="_blank" rel="noopener noreferrer">All features</a></div>
 </div>
 <div class="links">
 <div class="about">
 Other languages</div>
 <div class="link">
-<a href="../zh-Hans/" target="_blank" rel="noopener noreferrer">简体中文</a>
-</div>
+<a href="../zh-Hans/" target="_blank" rel="noopener noreferrer">简体中文</a></div>
 </div>
 </div>
 <div id="footer">
-© 2023 Overrun Organization<br>License: <a href="https://github.com/Over-Run/ktwiki/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT</a>
- · <a href="https://github.com/Over-Run/ktwiki" target="_blank" rel="noopener noreferrer">View source</a>
-<br>Last generated: 2023-06-28T10:03:06.4493752</div>
+© 2023 Overrun Organization<br>License: <a href="https://github.com/Over-Run/ktwiki/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT</a> · <a href="https://github.com/Over-Run/ktwiki" target="_blank" rel="noopener noreferrer">View source</a><br>Last generated: 2023-06-30T15:09:49.1414573</div>
 </body>
 </html>

@@ -18,13 +18,15 @@ package org.overrun.ktwiki.test
 
 import org.overrun.ktwiki.*
 import org.overrun.ktwiki.theme.builtin.builtin
+import org.overrun.ktwiki.theme.builtin.color
+import org.overrun.ktwiki.theme.builtin.spoiler
 
 val indexID = PageID("_ktwiki_index", {
     when (it) {
         LANG_ZH_HANS -> "索引"
         else -> "Index"
     }
-}, "")
+}, { "" })
 val downloadID = PageID("download", {
     when (it) {
         LANG_ZH_HANS -> "下载"
@@ -66,7 +68,7 @@ fun main() = builtin(
             }
             +links {
                 +about { -"Other languages" }
-                +link { pid -> +a(href = "${rootDir(pid)}$LANG_ZH_HANS/", content = "简体中文") }
+                +link { pid -> +a(href = "${rootDir(pid, this@site.lang)}$LANG_ZH_HANS/", content = "简体中文") }
             }
         }
 
@@ -122,7 +124,7 @@ fun main() = builtin(
             +("Basic functions" to 1)
 
             defFun("PageID")
-            sign("PageID(id: String, name: (String) -> String, path: String = \"\$name/\")")
+            sign("PageID(id: String, name: (String) -> String, path: (String) -> String = { \"\${name(it)}/\" })")
             param(
                 "id" to "An unique identifier of the page. For special pages, start with \"${code("_")}\".",
                 "name" to "The name of the page for each language.",
@@ -264,7 +266,7 @@ fun main() = builtin(
             +("基本函数" to 1)
 
             defFun("PageID")
-            sign("PageID(id: String, name: (String) -> String, path: String = \"\$name/\")")
+            sign("PageID(id: String, name: (String) -> String, path: (String) -> String = { \"\${name(it)}/\" })")
             param(
                 "id" to "页面的唯一标识符。特殊页面以 \"${code("_")}\" 开头。",
                 "name" to "页面每种语言的名称。",

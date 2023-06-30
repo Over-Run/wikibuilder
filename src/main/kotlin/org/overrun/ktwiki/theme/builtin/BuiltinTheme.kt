@@ -70,15 +70,12 @@ class BuiltinTheme(
     fun link(content: TagListNode.(PageID) -> Unit): Node = div(`class` = "link", content = content)
     fun about(content: TagListNode.(PageID) -> Unit): Node = div(`class` = "about", content = content)
 
-    fun color(color: String, content: String): Node = literal("<span style=\"color: $color;\">$content</span>")
-    fun spoiler(content: String): Node = literal("<span class=\"spoiler\">$content</span>")
-
     fun relativeLink(pageID: PageID, lang: String = LANG_EN_US, content: String = pageID.name(lang)): Node =
         RelativeLink(
             href = {
                 if (it.id == pageID.id) return@RelativeLink null
-                if (it.id == indexID.id) return@RelativeLink pageID.path
-                return@RelativeLink "../${pageID.path}"
+                if (it.id == indexID.id) return@RelativeLink pageID.path(lang)
+                return@RelativeLink "../${pageID.path(lang)}"
             },
             content = content, classCurr = "pageCurr"
         )

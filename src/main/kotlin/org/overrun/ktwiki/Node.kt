@@ -69,7 +69,7 @@ open class TagListNode(
     protected val id: String? = null,
     protected val `class`: String? = null,
     protected val style: String? = null,
-    private val content: TagListNode.(PageID) -> Unit
+    protected val content: TagListNode.(PageID) -> Unit
 ) : ListBackedNode() {
     override fun toString(): String = throw UnsupportedOperationException()
     override fun generate(pageID: PageID): String = buildString {
@@ -93,6 +93,7 @@ class ListNode(
     content: TagListNode.(PageID) -> Unit
 ) : TagListNode(tag, id, `class`, style, content) {
     override fun generate(pageID: PageID): String = buildString {
+        content(pageID)
         appendLine("<$tag${id(id)}${`class`(`class`)}${style(style)}>")
         contentList.forEach {
             append("<li>")
@@ -100,6 +101,7 @@ class ListNode(
             appendLine("</li>")
         }
         appendLine("</$tag>")
+        contentList.clear()
     }
 }
 
@@ -129,8 +131,8 @@ class RelativeLink(
     override fun generate(pageID: PageID): String {
         val s = href(pageID)
         return if (s != null)
-            "<a href=\"$s\" target=\"_blank\" rel=\"noopener noreferrer\">$content</a>\n"
-        else "<b${classCurr?.let { " class=\"$it\"" } ?: ""}>$content</b>\n"
+            "<a href=\"$s\" target=\"_blank\" rel=\"noopener noreferrer\">$content</a>"
+        else "<b${classCurr?.let { " class=\"$it\"" } ?: ""}>$content</b>"
     }
 }
 
@@ -267,7 +269,7 @@ fun a(
 ): Node = literal(
     "<a href=\"$href\"${
         if (openInBlank) " target=\"_blank\" rel=\"noopener noreferrer\"" else ""
-    }${id(id)}${`class`(`class`)}${style(style)}>$content</a>\n"
+    }${id(id)}${`class`(`class`)}${style(style)}>$content</a>"
 )
 
 fun h(
@@ -301,7 +303,7 @@ fun code(
     id: String? = null,
     `class`: String? = null,
     style: String? = null
-): Node = literal("<code${id(id)}${`class`(`class`)}${style(style)}>$content</code>\n")
+): Node = literal("<code${id(id)}${`class`(`class`)}${style(style)}>$content</code>")
 
 fun codeBlock(
     content: String,
